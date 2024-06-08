@@ -1,0 +1,4 @@
+flask
+google-cloud-dialogflow
+requests
+gunicorn

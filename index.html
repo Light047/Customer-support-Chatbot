@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        #chat-container {
+            width: 300px;
+            height: 400px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        #chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+        #user-input {
+            display: flex;
+        }
+        #user-input input {
+            flex: 1;
+            padding: 5px;
+        }
+        #user-input button {
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <div id="user-input">
+            <input type="text" id="message" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var message = document.getElementById("message").value;
+            document.getElementById("chat-box").innerHTML += "<p><b>You:</b> " + message + "</p>";
+            document.getElementById("message").value = "";
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://yourusername.pythonanywhere.com/webhook", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var jsonResponse = JSON.parse(xhr.responseText);
+                    var botMessage = jsonResponse.fulfillmentText;
+                    document.getElementById("chat-box").innerHTML += "<p><b>Bot:</b> " + botMessage + "</p>";
+                }
+            };
+
+            var data = JSON.stringify({
+                "queryInput": {
+                    "text": {
+                        "text": message,
+                        "languageCode": "en"
+                    }
+                }
+            });
+
+            xhr.send(data);
+        }
+    </script>
+</body>
+</html>
